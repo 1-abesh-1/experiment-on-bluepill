@@ -35,11 +35,10 @@ void Write(
 ){
 
     if(state){
-        GPIOx->BSRR=(1<<pin);
+        GPIOx->BSRR = (1UL << pin);
     }else{
-        GPIOx->BRR=(1<<pin);
+        GPIOx->BSRR = (1UL << (pin + 16));
     }
-
 
 };
 
@@ -59,3 +58,24 @@ void delay(uint32_t ms)
         __asm__("nop");
     }
 }
+
+void ConfigInput(GPIO_TypeDef *GPIOx, uint8_t pin) {
+    volatile uint32_t *config;
+    uint8_t localPin = pin;  // don't modify the original pin
+
+    if(localPin < 8) {
+        config = &GPIOx->CRL;
+    } else {
+        config = &GPIOx->CRH;
+        localPin -= 8;
+    }
+*config &= ~(0xF << (localPin * 4));
+*config |=  (0x8 << (localPin * 4));  // pull-up/pull-down mode
+GPIOx->ODR |= (1 << pin);
+}
+uint8_t Read(
+    GPIO_TypeDef *GPIOx,
+    uint8_t pin
+){
+    return (GPIOx->IDR >> pin) & 1;
+};
