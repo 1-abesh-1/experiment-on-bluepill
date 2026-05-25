@@ -2,7 +2,11 @@
 #define GPIO_H
 
 #include <stdint.h>
-
+typedef enum {
+    INPUT_FLOATING,
+    INPUT_PULLUP,
+    INPUT_PULLDOWN
+} InputMode;
 typedef struct{
     volatile uint32_t CRL;
     volatile uint32_t CRH;
@@ -60,6 +64,17 @@ void Toggle(
 
 
 void delay(uint32_t ms);
+
+
+void ConfigInput(
+    GPIO_TypeDef *GPIOx,
+    uint8_t pin
+);
+
+uint8_t Read(
+    GPIO_TypeDef *GPIOx,
+    uint8_t pin
+);
 
 
 
